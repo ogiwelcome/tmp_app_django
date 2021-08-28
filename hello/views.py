@@ -4,6 +4,8 @@ from .models import Friend
 from .forms import FriendForm
 from django.views.generic import ListView
 from django.views.generic import DetailView
+from .forms import FindForm
+from django.db.models import Q
 
 class FriendList(ListView):
     model = Friend
@@ -55,3 +57,20 @@ def delete(request, num):
         'obj': friend,
     }
     return render(request, 'hello/delete.html', params)
+def find(request):
+    if (request.method=='POST'):
+        msg = 'search result:'
+        form = FindForm(request.POST)
+        find = request.POST['find']
+        data = Friend.objects.filter(Q(name__contains=find)|Q(mail__contains=find))
+    else:
+        msg = 'search words...'
+        form = FindForm()
+        data = Friend.objects.all()
+    params = {
+        'title':'Hello',
+        'message':msg,
+        'form':form,
+        'data':data,
+    }
+    return render(request, 'hello/find.html', params)
