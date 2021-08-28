@@ -1,17 +1,18 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-
-def index(request):
-    params = {
-        'title':'Hello/Index',
-        'msg':'This is a sample page',
-        'goto':'next',
-    }
-    return render(request, 'hello/index.html', params)
-def next(request):
-    params = {
-        'title':'Hello/Next',
-        'msg':'This is another page',
-        'goto':'index',
-    }
-    return render(request, 'hello/index.html', params)
+from django.views.generic import TemplateView
+from .forms import HelloForm
+class HelloView(TemplateView):
+    def __init__(self):
+        self.params = {
+            'title':'Hello',
+            'form':HelloForm(),
+            'result':None
+        }
+    def get(self, request):
+        return render(request, 'hello/index.html', self.params)
+    def post(self, request):
+        ch = request.POST['choice']
+        self.params['result'] = 'selected: "'+ch+'".'
+        self.params['form'] = HelloForm(request.POST)
+        return render(request, 'hello/index.html', self.params)
